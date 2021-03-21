@@ -1,27 +1,238 @@
 <html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="GoJS/release/go-debug.js"></script>
+    <title>Zettelkasten diagram view</title>
+</head>
+<style>
+    body {
+        background-image: url("GoJS/background.png"); /* Путь к фоновому изображению */
+    }
+    .view {
+        background-image: url("GoJS/background.png"); /* Путь к фоновому изображению */
+        width: 100%;
+        height: 90%;
+    }
+</style>
+<script>
+    // This variation on ForceDirectedLayout does not move any selected Nodes
+    // but does move all other nodes (vertexes).
+    function ContinuousForceDirectedLayout() {
+        go.ForceDirectedLayout.call(this);
+        this._isObserving = false;
+    }
+    go.Diagram.inherit(ContinuousForceDirectedLayout, go.ForceDirectedLayout);
 
-<body>
-<div>
-    <form method="post">
-        <input type="text" name="title" placeholder="Введите название заметки" />
-        <input type="text" name="text" placeholder="Введите текст заметки" />
-        <input type="text" name="tag" placeholder="Tag">
-        <button type="submit">Добавить</button>
-    </form>
+    ContinuousForceDirectedLayout.prototype.isFixed = function(v) {
+        return v.node.isSelected;
+    }
+
+    // optimization: reuse the ForceDirectedNetwork rather than re-create it each time
+    ContinuousForceDirectedLayout.prototype.doLayout = function(coll) {
+        if (!this._isObserving) {
+            this._isObserving = true;
+            // cacheing the network means we need to recreate it if nodes or links have been added or removed or relinked,
+            // so we need to track structural model changes to discard the saved network.
+            var lay = this;
+            this.diagram.addModelChangedListener(function(e) {
+                // modelChanges include a few cases that we don't actually care about, such as
+                // "nodeCategory" or "linkToPortId", but we'll go ahead and recreate the network anyway.
+                // Also clear the network when replacing the model.
+                if (e.modelChange !== "" ||
+                        (e.change === go.ChangedEvent.Transaction && e.propertyName === "StartingFirstTransaction")) {
+                    lay.network = null;
+                }
+            });
+        }
+        var net = this.network;
+        if (net === null) {  // the first time, just create the network as normal
+            this.network = net = this.makeNetwork(coll);
+        } else {  // but on reuse we need to update the LayoutVertex.bounds for selected nodes
+            this.diagram.nodes.each(function(n) {
+                var v = net.findVertex(n);
+                if (v !== null) v.bounds = n.actualBounds;
+            });
+        }
+        // now perform the normal layout
+        go.ForceDirectedLayout.prototype.doLayout.call(this, coll);
+        // doLayout normally discards the LayoutNetwork by setting Layout.network to null;
+        // here we remember it for next time
+        this.network = net;
+    }
+    // end ContinuousForceDirectedLayout
+
+
+    function init() {
+        if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
+        var $ = go.GraphObject.make;  // for conciseness in defining templates
+
+        myDiagram =
+                $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
+                        {
+                            initialAutoScale: go.Diagram.Uniform,  // an initial automatic zoom-to-fit
+                            contentAlignment: go.Spot.Center,  // align document to the center of the viewport
+                            layout:
+                                    $(ContinuousForceDirectedLayout,  // automatically spread nodes apart while dragging
+                                            { defaultSpringLength: 30, defaultElectricalCharge: 100 }),
+                            // do an extra layout at the end of a move
+                            "SelectionMoved": function(e) { e.diagram.layout.invalidateLayout(); }
+                        });
+
+        // dragging a node invalidates the Diagram.layout, causing a layout during the drag
+        myDiagram.toolManager.draggingTool.doMouseMove = function() {
+            go.DraggingTool.prototype.doMouseMove.call(this);
+            if (this.isActive) { this.diagram.layout.invalidateLayout(); }
+        }
+        myDiagram.addDiagramListener("ObjectSingleClicked",
+            function(e) {
+                var part = e.subject.part;
+                if (!(part instanceof go.Link)) window.open("/view-note/?id=" + part.data.key, '_blank');
+                    // showMessage("Clicked on " + part.data.key);
+            });
+
+        // define each Node's appearance
+        myDiagram.nodeTemplate =
+                $(go.Node, "Auto",  // the whole node panel
+                        // define the node's outer shape, which will surround the TextBlock
+                        $(go.Shape, "Circle",
+                                { fill: "CornflowerBlue", stroke: "black", spot1: new go.Spot(0, 0, 5, 5), spot2: new go.Spot(1, 1, -5, -5) }),
+                        $(go.TextBlock,
+                                { font: "bold 10pt helvetica, bold arial, sans-serif", textAlign: "center", maxSize: new go.Size(100, NaN) },
+                                new go.Binding("text", "text"))
+                );
+        // the rest of this app is the same as samples/conceptMap.html
+
+        // replace the default Link template in the linkTemplateMap
+        myDiagram.linkTemplate =
+                $(go.Link,  // the whole link panel
+                        $(go.Shape,  // the link shape
+                                { stroke: "black" }),
+                        $(go.Shape,  // the arrowhead
+                                { toArrow: "standard", stroke: null }),
+                        $(go.Panel, "Auto",
+                                $(go.Shape,  // the label background, which becomes transparent around the edges
+                                        {
+                                            fill: $(go.Brush, "Radial", { 0: "rgb(240, 240, 240)", 0.3: "rgb(240, 240, 240)", 1: "rgba(240, 240, 240, 0)" }),
+                                            stroke: null
+                                        }),
+                                $(go.TextBlock,  // the label text
+                                        {
+                                            textAlign: "center",
+                                            font: "10pt helvetica, arial, sans-serif",
+                                            stroke: "#555555",
+                                            margin: 4
+                                        },
+                                        new go.Binding("text", "text"))
+                        )
+                );
+
+        // create the model for the concept map
+        var nodeDataArray = [
+            {{#notes}}
+                { key: {{id}}, text: "{{title}}" },
+            {{/notes}}
+        ];
+        var linkDataArray = [
+            {{#notes}}
+                { from: {{parentId}}, to: {{id}}, text: "{{tag}}" },
+            {{/notes}}
+        ];
+        myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
+    }
+
+    function reload() {
+        //myDiagram.layout.network = null;
+        var text = myDiagram.model.toJson();
+        myDiagram.model = go.Model.fromJson(text);
+        //myDiagram.layout =
+        //  go.GraphObject.make(ContinuousForceDirectedLayout,  // automatically spread nodes apart while dragging
+        //    { defaultSpringLength: 30, defaultElectricalCharge: 100 });
+    }
+</script>
+
+<body onload="init()">
+<div class="container">
+    <div class="row">
+        <div class="col-md-auto">
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-outline-primary" onclick="location.href='/';">
+                &#8634;
+            </button>
+        </div>
+        <div class="col-md-auto">
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#exampleModal">
+                Add new note
+            </button>
+        </div>
+        <div class="col-sm">
+            <form class="form-inline" method="post" action="">
+                <div class="row">
+                    <div class="col-auto">
+                        <label for="inputPassword2" class="sr-only">Filter by tag</label>
+                    </div>
+                    <div class="col-sm">
+                        <input name="tag" type="text" class="form-control" id="inputPassword2" required>
+                    </div>
+                    <div class="col-sm">
+                        <button type="submit" class="btn btn-outline-secondary mb-2">Filter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
-<div>Список сообщений</div>
-<form method="post" action="filter">
-    <input type="text" name="filter">
-    <button type="submit">Найти</button>
-</form>
-{{#notes}}
-    <div>
-        <b>{{id}}</b>
-        <span>{{title}}</span>
-        <span>{{text}}</span>
-        <i>{{tag}}</i>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="/add-note" method="POST" class="">
+                    <div class="row justify-content-center">
+                        <label for="selectParents" class="form-label">Note name</label>
+                        <select name="parentId" id="selectParents" class="form-select" aria-label="Default select example">
+                            <option selected value="0"># No parent node #</option>
+                            {{#notes}}
+                                <option value="{{id}}">{{title}}</option>
+                            {{/notes}}
+                        </select>
+                        <div class="mb-3">
+                            <label for="exampleFormControlInput1" class="form-label">Note name</label>
+                            <input name="title" type="text" class="form-control" id="exampleFormControlInput1" placeholder="Zettelkasten note">
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleFormControlTextarea1" class="form-label">Note description</label>
+                            <textarea name="text" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleFormControlInput1" class="form-label">Tag</label>
+                            <input name="tag" type="text" class="form-control" id="exampleFormControlInput1" placeholder="Zettelkasten note">
+                        </div>
+                        <br>
+                        <br>
+                        <button type="submit" class="btn btn-primary">Add note</button>
+                        <br>
+                        <button type="button" class="btn btn-outline-secondary" onclick="location.href='/';">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-{{/notes}}
+</div>
+
+<div id="myDiagramDiv" class="view"></div>
+
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 </body>
 </html>

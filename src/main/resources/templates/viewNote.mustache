@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+
+    <title>View/Modify note</title>
+</head>
+<style>
+    body {
+        background: url("https://lh3.googleusercontent.com/proxy/0U4XuVdtaPTobK-I-WfYNktMiSWOIO_4yTeytAHlRGcA3oX7Sh1XgJVqCkUt6KNBx0oS-wz8vmrpYIUmxD3Q2D48l7jQqVhsHiXqfRb5VQezjgOAmw") no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+    }
+    .container {
+        width: 70%;
+    }
+</style>
+<body>
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+<form action="/view-note" method="POST" class="">
+    <div class="row justify-content-center">
+        <label for="selectParents" class="form-label">Parent note name</label>
+        <select name="parentId" id="selectParents" class="form-select" aria-label="Default select example">
+            <option selected value="0"># No parent node #</option>
+            {{#other_notes}}
+                <option value="{{id}}">{{title}}</option>
+            {{/other_notes}}
+        </select>
+        <input hidden value="{{{note.id}}}" name="id">
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Note name</label>
+            <input name="title" type="text" class="form-control" id="exampleFormControlInput1"
+                   placeholder="Zettelkasten note" value="{{{note.title}}}">
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlTextarea1" class="form-label">Note description</label>
+            <textarea name="text" class="form-control" id="exampleFormControlTextarea1" rows="3">{{{note.text}}}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Tag</label>
+            <input name="tag" type="text" class="form-control" id="exampleFormControlInput1"
+                   placeholder="Zettelkasten note" value="{{{note.tag}}}">
+        </div>
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <button type="submit" class="btn btn-primary">Modify note</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="location.href='/';">Cancel</button>
+            <button type="button" class="btn btn-outline-danger"
+                    onclick="location.href='/view-note/?id={{{note.id}}}&delete=true';">Delete</button>
+        </div>
+    </div>
+</form>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+</body>
+</html>
