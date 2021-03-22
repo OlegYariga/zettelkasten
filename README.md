@@ -18,7 +18,7 @@ A zettelkasten consists of many individual notes with ideas and other short piec
 # Application
 In this application can keep notes in zettelkasten style. It has a simple user-friendly interface and you will be able to create, edit, delete and view your notes.
 
-### Install
+### Installation
 - clone or download this repository
 - install adopt-opendjdk-13
 - sync maven requirements
@@ -39,6 +39,6 @@ You can click on note in diam view to view of edit it. You can also mark note as
 ![view-edit-note.png](https://github.com/OlegYariga/zettelkasten/blob/master/screenshots/view-edit-note.png?raw=true)
 
 ### More infromation here
-https://zettelkasten.de/posts/overview/
-https://en.wikipedia.org/wiki/Zettelkasten
-https://habr.com/ru/post/508672/
+- https://zettelkasten.de/posts/overview/
+- https://en.wikipedia.org/wiki/Zettelkasten
+- https://habr.com/ru/post/508672/
