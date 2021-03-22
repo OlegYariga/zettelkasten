@@ -48,7 +48,9 @@ public class MainController {
     @GetMapping("/view-note")
     public String viewNote(
             @RequestParam(required = false, defaultValue = "false") Boolean delete,
-            @RequestParam Integer id, Map<String, Object> model) {
+            @RequestParam Integer id,
+            Map<String, Object> model
+    ) {
         Note note = noteRepo.findById(id);
 
         if (note != null && delete) {

@@ -10,11 +10,13 @@ public class Note {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
+    private Integer parentId;
 
     private String title;
+
+    @Column(name = "text", length = 1024)
     private String text;
     private String tag;
-    private Integer parentId;
     // mark note deleted (soft delete)
     private Integer deleted = 0;
 

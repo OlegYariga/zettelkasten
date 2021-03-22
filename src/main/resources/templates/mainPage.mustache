@@ -189,7 +189,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add new note</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -197,7 +197,7 @@
             <div class="modal-body">
                 <form action="/add-note" method="POST" class="">
                     <div class="row justify-content-center">
-                        <label for="selectParents" class="form-label">Note name</label>
+                        <label for="selectParents" class="form-label">Parent note name</label>
                         <select name="parentId" id="selectParents" class="form-select" aria-label="Default select example">
                             <option selected value="0"># No parent node #</option>
                             {{#notes}}
@@ -206,15 +206,18 @@
                         </select>
                         <div class="mb-3">
                             <label for="exampleFormControlInput1" class="form-label">Note name</label>
-                            <input name="title" type="text" class="form-control" id="exampleFormControlInput1" placeholder="Zettelkasten note">
+                            <input name="title" type="text" class="form-control" id="exampleFormControlInput1"
+                                   placeholder="Zettelkasten note" required maxlength="255">
                         </div>
                         <div class="mb-3">
                             <label for="exampleFormControlTextarea1" class="form-label">Note description</label>
-                            <textarea name="text" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                            <textarea name="text" class="form-control" id="exampleFormControlTextarea1" rows="3"
+                            maxlength="1024"></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="exampleFormControlInput1" class="form-label">Tag</label>
-                            <input name="tag" type="text" class="form-control" id="exampleFormControlInput1" placeholder="Zettelkasten note">
+                            <input name="tag" type="text" class="form-control" id="exampleFormControlInput1"
+                                   placeholder="Zettelkasten note" maxlength="255">
                         </div>
                         <br>
                         <br>

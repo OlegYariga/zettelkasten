@@ -11,11 +11,7 @@
 </head>
 <style>
     body {
-        background: url("https://lh3.googleusercontent.com/proxy/0U4XuVdtaPTobK-I-WfYNktMiSWOIO_4yTeytAHlRGcA3oX7Sh1XgJVqCkUt6KNBx0oS-wz8vmrpYIUmxD3Q2D48l7jQqVhsHiXqfRb5VQezjgOAmw") no-repeat center center fixed;
-        -webkit-background-size: cover;
-        -moz-background-size: cover;
-        -o-background-size: cover;
-        background-size: cover;
+        background-image: url("/GoJS/background.png"); /* Путь к фоновому изображению */
     }
     .container {
         width: 70%;
@@ -37,16 +33,17 @@
         <div class="mb-3">
             <label for="exampleFormControlInput1" class="form-label">Note name</label>
             <input name="title" type="text" class="form-control" id="exampleFormControlInput1"
-                   placeholder="Zettelkasten note" value="{{{note.title}}}">
+                   placeholder="Zettelkasten note" value="{{{note.title}}}" maxlength="255">
         </div>
         <div class="mb-3">
             <label for="exampleFormControlTextarea1" class="form-label">Note description</label>
-            <textarea name="text" class="form-control" id="exampleFormControlTextarea1" rows="3">{{{note.text}}}</textarea>
+            <textarea name="text" class="form-control" id="exampleFormControlTextarea1"
+                      rows="3" maxlength="1024">{{{note.text}}}</textarea>
         </div>
         <div class="mb-3">
             <label for="exampleFormControlInput1" class="form-label">Tag</label>
             <input name="tag" type="text" class="form-control" id="exampleFormControlInput1"
-                   placeholder="Zettelkasten note" value="{{{note.tag}}}">
+                   placeholder="Zettelkasten note" value="{{{note.tag}}}" maxlength="255">
         </div>
         <div class="btn-group" role="group" aria-label="Basic example">
             <button type="submit" class="btn btn-primary">Modify note</button>
