@@ -1,4 +1,4 @@
-package com.javatechnologies.zettelkasten;
+package com.javatechnologies.zettelkasten.controller;
 
 import com.javatechnologies.zettelkasten.domain.Note;
 import com.javatechnologies.zettelkasten.repos.NoteRepository;
