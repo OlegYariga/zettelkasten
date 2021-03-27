@@ -1,5 +1,6 @@
 package com.javatechnologies.zettelkasten.service;
 
+import com.javatechnologies.zettelkasten.domain.User;
 import com.javatechnologies.zettelkasten.repos.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +15,11 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepo.findByUsername(username);
+        User user = userRepo.findByUsername(username);
+        if (user != null){
+            return user;
+        }else{
+            return null;
+        }
     }
 }

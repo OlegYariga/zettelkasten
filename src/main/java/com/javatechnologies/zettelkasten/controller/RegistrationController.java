@@ -36,6 +36,6 @@ public class RegistrationController {
 
         userRepo.save(user);
 
-        return "registration";
+        return "redirect:/";
     }
 }
