@@ -20,11 +20,16 @@ public class Note {
     // mark note deleted (soft delete)
     private Integer deleted = 0;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private User author;
+
     // empty constructor for spring model generation
     public Note(){
     }
 
-    public Note(String title, String text, String tag, Integer parentId){
+    public Note(String title, String text, String tag, Integer parentId, User user){
+        this.author = user;
         this.title = title;
         this.text = text;
         this.tag = tag;
@@ -77,5 +82,13 @@ public class Note {
 
     public void setDeleted() {
         this.deleted = 1;
+    }
+
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
     }
 }
