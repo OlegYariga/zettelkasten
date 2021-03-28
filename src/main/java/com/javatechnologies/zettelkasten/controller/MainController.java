@@ -47,7 +47,7 @@ public class MainController {
             @RequestParam(required=false) String text,
             @RequestParam(defaultValue="note") String tag,
             Map<String, Object> model
-    ) {
+    ){
         Note note = new Note(title, text, tag, parentId, user);
         noteRepo.save(note);
 
@@ -60,7 +60,7 @@ public class MainController {
             @RequestParam(required = false, defaultValue = "false") Boolean delete,
             @RequestParam Integer id,
             Map<String, Object> model
-    ) {
+    ){
         Note note = noteRepo.findById(id);
 
         if (note != null && delete) {
