@@ -26,6 +26,10 @@ In this application can keep notes in zettelkasten style. It has a simple user-f
 - build and run server with `adopt-openjdk-13.0.2/bin/java`
 
 ### Usage
+
+First, authorize and login:
+![register.png](https://github.com/OlegYariga/zettelkasten/blob/master/screenshots/register.png?raw=true)
+
 Add new notes with **Add new note** button. Use short and understandable names. Link every new note with any exsisted one.
 ![add-new-note.png](https://github.com/OlegYariga/zettelkasten/blob/master/screenshots/add--new-note.png?raw=true)
 
