@@ -7,6 +7,8 @@ import javax.persistence.*;
 import java.util.Collection;
 import java.util.Set;
 
+import static java.util.Objects.isNull;
+
 @Entity
 @Table(name = "usr")
 public class User implements UserDetails {
@@ -16,6 +18,7 @@ public class User implements UserDetails {
     private String username;
     private String password;
     private Boolean active;
+    private Boolean is_admin;
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
@@ -85,5 +88,16 @@ public class User implements UserDetails {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public Boolean getIs_admin() {
+        if (isNull(is_admin)){
+            return false;
+        }
+        return is_admin;
+    }
+
+    public void setIs_admin(Boolean is_admin) {
+        this.is_admin = is_admin;
     }
 }
